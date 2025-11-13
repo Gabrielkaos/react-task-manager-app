@@ -4,7 +4,7 @@ const express = require("express")
 router = express.Router()
 const bcrypt = require('bcryptjs')
 
-
+//api/auth
 router.post("/register",(req, res)=>{
     const {username, email, password} = req.body
 
