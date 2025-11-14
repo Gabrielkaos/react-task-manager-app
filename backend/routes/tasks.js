@@ -29,6 +29,17 @@ router.post("/",(req, res)=>{
     )
 })
 
+router.get("/",(req, res)=>{
+    const userId = req.user.userId
+    db.all(`SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC`,[userId],(err, rows)=>{
+        if(err){
+            return res.status(500).json({error:"Databse Error"})
+        }
+
+        res.json({rows})
+    })
+})
+
 router.get("/:id",(req, res)=>{
     const taskId = req.params.id
     const userId = req.user.userId
@@ -47,3 +58,66 @@ router.get("/:id",(req, res)=>{
         res.status(500).json({error:"Server Error"})
     }
 })
+
+
+router.put("/:id",(req, res)=>{
+    const taskId = req.params.id
+    const userId = req.user.userId
+    const {title, description, status} = req.body
+
+    db.get("SELECT * FROM tasks WHERE user_id = ? AND id = ?",[userId, taskId],(err, task)=>{
+        if(err){
+            return res.status(500).json({error:"Database Error"})
+        }
+        if(!task){
+            return res.status(400).json({error:"Task not found"})
+        }
+
+        db.run("UPDATE tasks SET title = ?, description = ?, status = ? WHERE id = ?",
+            [
+                title || task.title,
+                description !== undefined ? description : task.description,
+                status || task.status,
+                taskId
+            ],
+            (err)=>{
+                if(err){
+                    return res.status(500).json({error:"Database Error"})
+                }
+
+                res.json({
+                    message:"Task updated successfully",
+                    task:{
+                        title:title || task.title,
+                        description:description !== undefined ? description : task.description,
+                        status:status || task.status,
+                        id:taskId
+                    }
+                })
+            }
+        )
+
+    })
+})
+
+router.delete('/:id', (req, res) => {
+  const taskId = req.params.id;
+  const userId = req.user.userId;
+
+  db.run(
+    'DELETE FROM tasks WHERE id = ? AND user_id = ?',
+    [taskId, userId],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+
+      res.json({ message: 'Task deleted successfully' });
+    }
+  );
+});
+
+module.exports = router
