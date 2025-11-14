@@ -5,15 +5,15 @@ router = express.Router()
 const bcrypt = require('bcryptjs')
 
 //api/auth
-router.post("/register",(req, res)=>{
+router.post("/register",async (req, res)=>{
     const {username, email, password} = req.body
 
     if(!username || !email || !password){
         return res.status(400).json({error:"Provide all fields"})
     }
     try{
-        const salt = bcrypt.genSalt(10)
-        const hashedPassword = bcrypt.hash(password,salt)
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password,salt)
 
         db.run(`INSERT INTO users (username, email, password) VALUES (?, ?, ?)`,
             [username,email,hashedPassword],
@@ -36,7 +36,7 @@ router.post("/register",(req, res)=>{
 })
 
 
-router.post("/login",(req, res)=>{
+router.post("/login", async (req, res)=>{
     const {email, password} = req.body
 
     if(!email || !password){
@@ -59,7 +59,7 @@ router.post("/login",(req, res)=>{
                 return res.status(401).json({error:"Password does not match"})
             }
 
-            const token = jwt.token({userId:user.id, username:user.username},process.env.JWT_SECRET,{expiresIn:'7d'})
+            const token = jwt.sign({userId:user.id, username:user.username},process.env.JWT_SECRET,{expiresIn:'7d'})
 
             res.status(201).json({message:"Login Sucessful",token,user:{id:user.id, username:user.username, email:user.email}})
         })

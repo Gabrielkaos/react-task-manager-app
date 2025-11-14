@@ -1,6 +1,6 @@
 import React, {useContext, useState} from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate, Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css"
 
 
@@ -8,7 +8,7 @@ const Register = () =>{
     const {register} = useContext(AuthContext)
     const navigate = useNavigate()
 
-    const [username, setUserName] = useState("")
+    const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")

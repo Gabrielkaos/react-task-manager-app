@@ -31,12 +31,12 @@ router.post("/",(req, res)=>{
 
 router.get("/",(req, res)=>{
     const userId = req.user.userId
-    db.all(`SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC`,[userId],(err, rows)=>{
+    db.all(`SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC`,[userId],(err, tasks)=>{
         if(err){
             return res.status(500).json({error:"Databse Error"})
         }
 
-        res.json({rows})
+        res.json({tasks})
     })
 })
 
